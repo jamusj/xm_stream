@@ -62,10 +62,6 @@ $url = preg_replace("/mms:/", "http:", $matches[1]);
 $wav_file = "/tmp/xms_streaming" . posix_getpid() . ".wav";
 posix_mkfifo($wav_file, 0666);
 
-//FIFO from lame to us
-$file = "/tmp/xms_streaming" . posix_getpid() . ".mp3";
-posix_mkfifo($file, 0666);
-
 $descriptorspec = array (
 	0 => array (
 		"pipe",
@@ -84,28 +80,11 @@ $descriptorspec = array (
 );
 
 //Start mplayer
-$handle = proc_open("/sw/bin/mplayer -quiet -really-quiet  -vc null -vo null -ao pcm:file=$wav_file $url ", $descriptorspec, $pipes);
+$handle = proc_open($XMSTREAM_MPLAYER." -quiet -really-quiet  -vc null -vo null -ao pcm:file=$wav_file $url ", $descriptorspec, $pipes);
 //Start lame
-$handle2 = proc_open("/sw/bin/lame $wav_file - ", $descriptorspec, $pipes2);
-
-
+$handle2 = proc_open($XMSTREAM_LAME." $wav_file - ", $descriptorspec, $pipes2);
 
 $file2 = $pipes2[1];
-
-//This is used to start a stream at the begining of a mpeg frame, but this shouldn't be needed anymore
-
-while (1) {
-	$data = fread($file2, 1);
-	if ($data == chr(255)) {
-		$data = fread($file2, 1);
-		if ($data == chr(0xFB))
-			break;
-
-	}
-}
-echo chr(255);
-echo chr(0xFB);
-
 
 while (1) {
 	$data = fread($file2, 1024);
@@ -114,7 +93,5 @@ while (1) {
 	echo $data;
 }
 
-// It is important that you close any pipes before calling
-// proc_close in order to avoid a deadlock
-$return_value = pclose($handle);
+
 ?>
