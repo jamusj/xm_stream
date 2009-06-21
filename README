@@ -1,0 +1,23 @@
+This is simple PHP script to stream XM radio via a standard MP3 stream.
+
+It requires the use of lame/mplayer and fifo.  I don't think Windows supports 
+fifos, but it should work on Linux and was developed on Mac OS 10.5.
+
+To use:
+Rename config.inc.dist.php to config.inc.php, and edit based on your 
+configuration.
+Put playlist.php somewhere that requires http authentication
+Put xm_stream.php somewhere that doesn't require http auth.  This is protected 
+by the key in config.inc.php
+
+Example of use:
+
+Go to http://example.com/playlist.php/47.m3u for Alt Nation (channel 47)
+
+Commentary on design:
+
+Some players don't like http authentication on the mp3 stream, so
+that's why I chose it to be protected by a key instead of http authentication.
+
+Some other players cache the streaming URL instead of the playlist URL, so
+I couldn't used a one-use or time-based key.
